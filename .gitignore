@@ -5,3 +5,4 @@ outputs
 logs
 run_bash.sh
 wandb
+__pycache__/
