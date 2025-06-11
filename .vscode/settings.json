@@ -1,0 +1,11 @@
+{
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/legged_lab",
+        "~/robot/IsaacLab/source/isaaclab_tasks",
+        "~/robot/IsaacLab/source/isaaclab_mimic",
+        "~/robot/IsaacLab/source/extensions",
+        "~/robot/IsaacLab/source/isaaclab_assets",
+        "~/robot/IsaacLab/source/isaaclab_rl",
+        "~/robot/IsaacLab/source/isaaclab",
+    ]
+}
