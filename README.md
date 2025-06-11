@@ -1,3 +1,10 @@
+# Welcome to WSY's Version of Legged Lab
+
+This project is based on the original work of [Hellod035](https://github.com/Hellod035/LeggedLab). I have integrated and adapted several features from Humanoid-gym. This repository is intended for **personal and research use only**. **Commercial use is not permitted** without explicit permission.
+
+If you have any questions or encounter any bugs, feel free to email me at [wangsy1999@outlook.com](mailto:wangsy1999@outlook.com) or open an issue on GitHub.
+
+---
 # Legged Lab: Direct IsaacLab Workflow for Legged Robots
 
 [![IsaacSim](https://img.shields.io/badge/IsaacSim-4.5.0-silver.svg)](https://docs.omniverse.nvidia.com/isaacsim/latest/overview.html)
