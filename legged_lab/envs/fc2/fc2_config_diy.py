@@ -128,11 +128,11 @@ class bhr8RewardCfg(RewardCfg):
 
     feet_clearance = RewTerm(
         func=fc2_r.feet_clearance_reward,
-        weight=1.5,
+        weight=1.,
         params={
             "sensor_cfg": SceneEntityCfg("contact_sensor", body_names=[".*foot.*"]),
-            "target_height": 0.04,
-            "height_tol": 0.02,
+            "target_height": 0.03,
+            "height_tol": 0.01,
         },
     )
 
