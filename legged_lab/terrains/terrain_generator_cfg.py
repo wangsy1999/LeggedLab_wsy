@@ -8,6 +8,14 @@
 #
 # This file contains code derived from Isaac Lab Project (BSD-3-Clause license)
 # with modifications by Legged Lab Project (BSD-3-Clause license).
+#
+# Copyright (c) 2025, Siyuan Wang.
+# All rights reserved.
+# Further modifications are licensed under BSD-3-Clause.
+#
+# This file contains code derived from Isaac Lab Project (BSD-3-Clause license)
+# with modifications by Legged Lab Project (BSD-3-Clause license)
+# and Siyuan Wang (BSD-3-Clause license).
 
 
 """
