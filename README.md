@@ -4,6 +4,20 @@ This project is based on the original work of [Hellod035](https://github.com/Hel
 
 If you have any questions or encounter any bugs, feel free to email me at [wangsy1999@outlook.com](mailto:wangsy1999@outlook.com) or open an issue on GitHub.
 
+## Citation
+
+If you use my modifcation of Legged Lab in your research, you can cite it as follows:
+
+```bibtex
+@software{LeggedLab,
+  author = {Wang,Siyuan},
+  license = {BSD-3-Clause},
+  title = {WSY's Version of Legged Lab},
+  url = {https://github.com/wangsy1999/LeggedLab_wsy},
+  version = {1.0.0},
+  year = {2025}
+}
+```
 ---
 # Legged Lab: Direct IsaacLab Workflow for Legged Robots
 
