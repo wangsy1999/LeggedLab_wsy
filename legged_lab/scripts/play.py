@@ -6,8 +6,14 @@
 # All rights reserved.
 # Modifications are licensed under BSD-3-Clause.
 #
+# Copyright (c) 2025, Siyuan Wang.
+# All rights reserved.
+# Further modifications are licensed under BSD-3-Clause.
+#
 # This file contains code derived from Isaac Lab Project (BSD-3-Clause license)
-# with modifications by Legged Lab Project (BSD-3-Clause license).
+# with modifications by Legged Lab Project (BSD-3-Clause license)
+# and Siyuan Wang (BSD-3-Clause license).
+
 
 import argparse
 import os
@@ -56,19 +62,25 @@ def play():
     env_cfg.scene.max_episode_length_s = 40.0
     env_cfg.scene.num_envs = 50
     env_cfg.scene.env_spacing = 2.5
-    env_cfg.commands.ranges.lin_vel_x = (0.6, 0.6)
+    env_cfg.commands.ranges.lin_vel_x = (0.2, 1)
     env_cfg.commands.ranges.lin_vel_y = (0.0, 0.0)
     env_cfg.commands.ranges.heading = (0.0, 0.0)
     env_cfg.scene.height_scanner.drift_range = (0.0, 0.0)
 
     # env_cfg.scene.terrain_generator = None
     # env_cfg.scene.terrain_type = "plane"
-
+    if args_cli.device:
+            env_cfg.device = args_cli.device
+            if hasattr(env_cfg, "sim") and hasattr(env_cfg.sim, "device"):
+                env_cfg.sim.device = args_cli.device
+            
+            agent_cfg.device = args_cli.device
+            print(f"[INFO] Overriding device settings for play script to use: '{args_cli.device}'")
     if env_cfg.scene.terrain_generator is not None:
         env_cfg.scene.terrain_generator.num_rows = 5
         env_cfg.scene.terrain_generator.num_cols = 5
         env_cfg.scene.terrain_generator.curriculum = False
-        env_cfg.scene.terrain_generator.difficulty_range = (0.4, 0.4)
+        env_cfg.scene.terrain_generator.difficulty_range = (0.6, 0.6)
 
     if args_cli.num_envs is not None:
         env_cfg.scene.num_envs = args_cli.num_envs
@@ -112,4 +124,4 @@ def play():
 
 if __name__ == "__main__":
     play()
-    simulation_app.close()
+    # simulation_app.close()

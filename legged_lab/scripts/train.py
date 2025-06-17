@@ -6,8 +6,14 @@
 # All rights reserved.
 # Modifications are licensed under BSD-3-Clause.
 #
+# Copyright (c) 2025, Siyuan Wang.
+# All rights reserved.
+# Further modifications are licensed under BSD-3-Clause.
+#
 # This file contains code derived from Isaac Lab Project (BSD-3-Clause license)
-# with modifications by Legged Lab Project (BSD-3-Clause license).
+# with modifications by Legged Lab Project (BSD-3-Clause license)
+# and Siyuan Wang (BSD-3-Clause license).
+
 
 import argparse
 
@@ -24,7 +30,7 @@ parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
 parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
-
+parser.add_argument("--backup_env", type=bool, default=False, help="")
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
 # append AppLauncher cli args
@@ -48,6 +54,29 @@ torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
 torch.backends.cudnn.deterministic = False
 torch.backends.cudnn.benchmark = False
+import shutil, os, inspect
+
+def backup_current_env(log_dir, env_cfg, env_class, extra_files=None):
+    """只备份本次env相关核心文件和可选自定义文件到log_dir/env_backup/"""
+    backup_path = os.path.join(log_dir, "env_backup")
+    os.makedirs(backup_path, exist_ok=True)
+    # 备份 config、reward、env class
+    config_file = inspect.getfile(type(env_cfg)) if not isinstance(env_cfg, type) else inspect.getfile(env_cfg)
+    env_file = inspect.getfile(env_class)
+    files_to_backup = [config_file, env_file]
+
+    # 如果 rewards、其它py是单独文件，也可补充（例如 rewards.py 路径可硬编码或自动推断）
+    reward_file = os.path.join(os.path.dirname(config_file), "rewards.py")
+    if os.path.exists(reward_file):
+        files_to_backup.append(reward_file)
+
+    if extra_files:
+        files_to_backup += extra_files
+
+    for f in set(files_to_backup):
+        if os.path.exists(f):
+            shutil.copy2(f, backup_path)
+    print(f"[INFO] Current env backup finished at: {backup_path}")
 
 
 def train():
@@ -62,7 +91,13 @@ def train():
 
     agent_cfg = update_rsl_rl_cfg(agent_cfg, args_cli)
     env_cfg.scene.seed = agent_cfg.seed
-
+    if args_cli.device:
+            env_cfg.device = args_cli.device
+            if hasattr(env_cfg, "sim") and hasattr(env_cfg.sim, "device"):
+                env_cfg.sim.device = args_cli.device
+            
+            agent_cfg.device = args_cli.device
+            print(f"[INFO] Overriding device settings for play script to use: '{args_cli.device}'")
     if args_cli.distributed:
         env_cfg.sim.device = f"cuda:{app_launcher.local_rank}"
         agent_cfg.device = f"cuda:{app_launcher.local_rank}"
@@ -83,13 +118,16 @@ def train():
         log_dir += f"_{agent_cfg.run_name}"
     log_dir = os.path.join(log_root_path, log_dir)
     runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=log_dir, device=agent_cfg.device)
-
+    
     if agent_cfg.resume:
         # get path to previous checkpoint
         resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint)
+
         print(f"[INFO]: Loading model checkpoint from: {resume_path}")
         # load previously trained model
         runner.load(resume_path)
+    if args_cli.backup_env:
+        backup_current_env(log_dir, env_cfg, env_class)
 
     dump_yaml(os.path.join(log_dir, "params", "env.yaml"), env_cfg)
     dump_yaml(os.path.join(log_dir, "params", "agent.yaml"), agent_cfg)
@@ -99,4 +137,4 @@ def train():
 
 if __name__ == "__main__":
     train()
-    simulation_app.close()
+
