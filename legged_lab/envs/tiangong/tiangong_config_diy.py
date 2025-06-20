@@ -39,7 +39,15 @@ from legged_lab.terrains import GRAVEL_TERRAINS_CFG, ROUGH_TERRAINS_CFG
 
 @configclass
 class tiangongRewardCfg(RewardCfg):
-    
+    base_height = RewTerm(
+        func=tiangong_r.base_height_reward,
+        weight=0.1,  # 你可以根据任务调整权重
+        params={
+            "asset_cfg": SceneEntityCfg("robot", body_names=".*foot.*"),  # torso 是机器人躯干的 body 名称
+            "target_height": 0.89,     # 你的机器人 torso 在站立时的理想高度    # 通常为 feet 几何中心到 surface 的偏移
+            "scale": 100.0             # 奖励斜率，越大越惩罚偏离
+        }
+    )    
     track_lin_vel_xy_exp = RewTerm(func=tiangong_r.track_lin_vel_xy_yaw_frame_exp, weight=2.0, params={"std": 0.5})
     track_ang_vel_z_exp = RewTerm(func=tiangong_r.track_ang_vel_z_world_exp, weight=2.0, params={"std": 0.5})
     lin_vel_z_l2 = RewTerm(func=tiangong_r.lin_vel_z_l2, weight=-1.0)
@@ -127,11 +135,11 @@ class tiangongRewardCfg(RewardCfg):
 
     feet_clearance = RewTerm(
         func=tiangong_r.feet_clearance_reward,
-        weight=0.05,
+        weight=1.2,
         params={
-            "sensor_cfg": SceneEntityCfg("contact_sensor", body_names=[".*ankle_roll.*"]),
-            "target_height": 0.03,
-            "height_tol": 0.01,
+            "asset_cfg": SceneEntityCfg("robot", body_names=[".*foot.*"]),
+            "target_height": 0.05,
+            "height_tol": 0.02,
         },
     )
 

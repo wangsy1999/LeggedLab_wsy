@@ -284,8 +284,8 @@ def joint_pos_limits(env: BaseEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("r
 
 def feet_clearance_reward(
     env: BaseEnv,
-    sensor_cfg: SceneEntityCfg,
-    target_height: float = 0.05,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    target_height: float = 0.04,
     height_tol: float = 0.02,
 ) -> torch.Tensor:
     """
@@ -301,11 +301,13 @@ def feet_clearance_reward(
     Returns:
         torch.Tensor: 每个环境的奖励 [num_envs]
     """
-    contact_forces = env.contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids, 2]
+    assert len(asset_cfg.body_ids) == 2
+    asset: Articulation = env.scene[asset_cfg.name]
+    contact_forces = env.contact_sensor.data.net_forces_w[:, asset_cfg.body_ids, 2]
     contact = contact_forces > 5.0  # [N, num_feet]
     
-    feet_z = env.robot.data.body_pos_w[:, sensor_cfg.body_ids, 2] - 0.078  # [N, num_feet]
-
+    feet_z = asset.data.body_pos_w[:, asset_cfg.body_ids, 2] - 0.078  # [N, num_feet]
+    # print(feet_z)
     delta_z = feet_z - env.last_feet_z
     env.feet_height += delta_z
     env.last_feet_z = feet_z
@@ -407,3 +409,30 @@ def action_smoothness_reward(env: BaseEnv, coef: float = 0.05) -> torch.Tensor:
     term_3 = coef * torch.sum(torch.abs(actions), dim=1)
     return term_1 + term_2 + term_3
 
+
+def base_height_reward(
+    env: BaseEnv,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    height_offset: float = 0.078,
+    target_height: float = 0.80,  # 目标 base 高度（可根据你的机器人身高调整）
+    scale: float = 100.0,
+) -> torch.Tensor:
+    """
+    鼓励 base 高度接近目标高度，动态考虑支撑脚。
+    """
+    assert len(asset_cfg.body_ids) == 2
+    asset: Articulation = env.scene[asset_cfg.name]
+    # feet z 坐标
+    feet_z = asset.data.body_pos_w[:, asset_cfg.body_ids, 2] 
+    # print(asset_cfg.body_ids)
+    # print(feet_z) # [N, num_feet]
+    # 支撑脚 mask（假定你有标准 _get_gait_phase，0=swing, 1=stance）
+    stance_mask = env._get_gait_phase()  # [N, num_feet]
+    # 支撑脚平均高度
+    measured_heights = torch.sum(feet_z * stance_mask, dim=1) / torch.sum(stance_mask, dim=1)
+    # base 高度（z）
+    base_height = asset.data.root_pos_w[:, 2] - (measured_heights - height_offset)
+    # print(base_height)  # [N]
+    # 指数型奖励，越接近 target_height 奖励越高
+    reward = torch.exp(-torch.abs(base_height - target_height) * scale)
+    return reward
