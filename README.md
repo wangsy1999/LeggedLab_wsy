@@ -1,7 +1,9 @@
 # Welcome to WSY's Version of Legged Lab
 
-⚠️ Some bugs are found which makes the robot will not walk even after 10k iterations. please find the previous commits and it should be able to work in 1k iterations.
+## ⚠️ Caution
+Some bugs are found which makes the robot will not walk even after 10k iterations. please find the previous commits and it should be able to work in 1k iterations.
 
+##
 
 This project is based on the original work of [Hellod035](https://github.com/Hellod035/LeggedLab). I have integrated and adapted several features from Humanoid-gym. This repository is intended for **personal and research use only**. **Commercial use is not permitted** without explicit permission.
 
